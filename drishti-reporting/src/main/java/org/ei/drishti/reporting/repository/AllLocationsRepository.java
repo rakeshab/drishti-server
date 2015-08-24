@@ -20,7 +20,7 @@ public class AllLocationsRepository {
         this.dataAccessTemplate = dataAccessTemplate;
     }
 
-    public Location fetchBy(String village, String subCenter, String phcIdentifier) {
+    	public Location fetchBy(String village, String subCenter, String phcIdentifier) {
         return (Location) dataAccessTemplate.getUniqueResult(Location.FIND_BY_VILLAGE_SUBCENTER_AND_PHC_IDENTIFIER,
                 new String[]{"village", "subCenter", "phcIdentifier"}, new Object[]{village,
                 subCenter, phcIdentifier});

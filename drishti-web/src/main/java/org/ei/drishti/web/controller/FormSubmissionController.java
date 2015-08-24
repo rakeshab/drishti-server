@@ -14,7 +14,6 @@ import java.util.List;
 import org.ei.drishti.dto.form.FormSubmissionDTO;
 import org.ei.drishti.event.FormSubmissionEvent;
 import org.ei.drishti.form.domain.FormSubmission;
-import org.ei.drishti.form.domain.Poc_table;
 import org.ei.drishti.form.service.FormSubmissionConverter;
 import org.ei.drishti.form.service.FormSubmissionService;
 import org.json.JSONArray;
@@ -30,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
 
 import ch.lambdaj.function.convert.Converter;
 
@@ -88,7 +89,7 @@ public class FormSubmissionController {
 	@RequestMapping(headers = { "Accept=application/json" }, method = POST, value = "/form-submissions")
 	public ResponseEntity<HttpStatus> submitForms(
 			@RequestBody List<FormSubmissionDTO> formSubmissionsDTO) {
-String entityidEC=null;
+		String entityidEC = null;
 		try {
 			if (formSubmissionsDTO.isEmpty()) {
 				return new ResponseEntity<>(BAD_REQUEST);
@@ -108,7 +109,7 @@ String entityidEC=null;
 				logger.info("value of formname " + visittype);
 				if (visittype.equalsIgnoreCase("anc_visit")
 						|| visittype.equalsIgnoreCase("pnc_visit")
-						|| visittype.equalsIgnoreCase("child")) {
+						|| visittype.equalsIgnoreCase("child_illness")) {
 
 					JSONArray fieldsJsonArray = dataObject
 							.getJSONObject("formInstance")
@@ -116,37 +117,27 @@ String entityidEC=null;
 
 					String visitentityid = dataObject.getString("entityId");
 
-					
-
 					String anmid = dataObject.getString("anmId");
-
-				
 
 					for (int i = 0; i < fieldsJsonArray.length(); i++) {
 
 						JSONObject jsonObject = fieldsJsonArray
 								.getJSONObject(i);
-						
 
 						if ((jsonObject.has("name"))
-								&& jsonObject.getString("name").equals(
-										"ecId")) {
+								&& jsonObject.getString("name").equals("ecId")) {
 
-						 entityidEC = (jsonObject
-									.has("value") && jsonObject
+							entityidEC = (jsonObject.has("value") && jsonObject
 									.getString("value") != null) ? jsonObject
 									.getString("value") : "";
-						
-							
 
 						}
-						
 
 						if ((jsonObject.has("name"))
 								&& jsonObject.getString("name").equals(
 										"isConsultDoctor")) {
 
-						String	 isCon = (jsonObject.has("value") && jsonObject
+							String isCon = (jsonObject.has("value") && jsonObject
 									.getString("value") != null) ? jsonObject
 									.getString("value") : "";
 
@@ -155,19 +146,14 @@ String entityidEC=null;
 
 								logger.info(" invoking a service");
 								logger.info("res2+++++" + isCon);
-								
-								
+								logger.info("anmid+++++" + anmid);
+
+								formSubmissionService.requestConsultationTest(
+										visittype, visitentityid, entityidEC,
+										anmid);
+
+								logger.info("invoking a service method");
 							}
-							Poc_table pt=new Poc_table();
-								pt.setAnmid(anmid);
-								pt.setEntityidEC(entityidEC);
-								pt.setVisitentityid(visitentityid);
-								pt.setVisittype(visittype);
-								//pt.setLevel("");
-								//pt.setServerversion("");
-							formSubmissionService
-							.requestConsultationTest(pt);
-							
 
 						}
 					}
